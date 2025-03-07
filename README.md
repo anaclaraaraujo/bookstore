@@ -39,10 +39,6 @@ A estrutura do projeto é organizada da seguinte forma:
 
 ## Diagrama ER
 
-## Diagrama ER
-
-## Diagrama ER
-
 ```mermaid
 ---
 title: Diagrama Entidade-Relacionamento - Sistema de Gestão de Biblioteca
