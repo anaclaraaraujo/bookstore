@@ -1,15 +1,14 @@
 import java.util.Date;
 
 public class Author {
-
     private int id;
     private String name;
-    private Date dateOfBirth;
+    private Date birthDate;
 
-    public Author(int id, String name, Date dateOfBirth) {
-        this.id = id++;
+    public Author(int id, String name, Date birthDate) {
+        this.id = id;
         this.name = name;
-        this.dateOfBirth = dateOfBirth;
+        this.birthDate = birthDate;
     }
 
     public int getId() {
@@ -20,21 +19,12 @@ public class Author {
         return name;
     }
 
-    public Date getDateOfBirth() {
-        return dateOfBirth;
+    public Date getBirthDate() {
+        return birthDate;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
 
     @Override
     public String toString() {
-        return "Author{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", dateOfBirth='" + dateOfBirth + '\'' +
-                '}';
+        return "Autor: " + name + " | Nascimento: " + birthDate;
     }
 }

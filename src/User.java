@@ -1,16 +1,20 @@
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class User {
-    int id;
-    String name;
-    Date birthday;
-    String email;
+    private int id;
+    private String name;
+    private Date birthDate;
+    private String email;
+    private List<Loan> loanHistory;
 
-    User(int id, String name, Date birthday, String email) {
+    public User(int id, String name, Date birthDate, String email) {
         this.id = id;
         this.name = name;
-        this.birthday = birthday;
+        this.birthDate = birthDate;
         this.email = email;
+        this.loanHistory = new ArrayList<>();
     }
 
     public int getId() {
@@ -21,25 +25,24 @@ public class User {
         return name;
     }
 
-    public Date getBirthday() {
-        return birthday;
+    public Date getBirthDate() {
+        return birthDate;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public List<Loan> getLoanHistory() {
+        return loanHistory;
+    }
+
+    public void addLoan(Loan loan) {
+        loanHistory.add(loan);
     }
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", birthday=" + birthday +
-                ", email='" + email + '\'' +
-                '}';
+        return "Usuário: " + name + " | Email: " + email;
     }
 }

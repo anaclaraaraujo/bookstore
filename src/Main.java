@@ -1,84 +1,172 @@
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        BookStore bookStore = new BookStore();
+        Store store = new Store();
         Scanner scanner = new Scanner(System.in);
 
-        List<Author> authors = new ArrayList<>();
-        authors.add(new Author(1, "J.K. Rowling", new Date(1965 - 1900, 6, 31)));
-        authors.add(new Author(2, "George R.R. Martin", new Date(1948 - 1900, 8, 20)));
-        authors.add(new Author(3, "J.R.R. Tolkien", new Date(1892 - 1900, 0, 3)));
-        authors.add(new Author(4, "Agatha Christie", new Date(1890 - 1900, 8, 15)));
-        authors.add(new Author(5, "Stephen King", new Date(1947 - 1900, 8, 21)));
-        authors.add(new Author(6, "Arthur Conan Doyle", new Date(1859 - 1900, 4, 22)));
-        authors.add(new Author(7, "Isaac Asimov", new Date(1920 - 1900, 0, 2)));
-        authors.add(new Author(8, "Philip K. Dick", new Date(1928 - 1900, 11, 16)));
-        authors.add(new Author(9, "Haruki Murakami", new Date(1949 - 1900, 0, 12)));
-        authors.add(new Author(10, "Gabriel García Márquez", new Date(1927 - 1900, 2, 6)));
+        store.populateData();
 
-        List<Book> books = new ArrayList<>();
-        books.add(new Book(1, "Harry Potter e a Pedra Filosofal", authors.get(0), true));
-        books.add(new Book(2, "A Guerra dos Tronos", authors.get(1), true));
-        books.add(new Book(3, "O Senhor dos Anéis", authors.get(2), true));
+        while (true) {
+            showMenu();
+            int option = scanner.nextInt();
+            scanner.nextLine();
 
-        for (Book book : books) {
-            bookStore.addBook(book);
-        }
+            MenuOption menuOption = MenuOption.fromInt(option);
 
-        List<User> users = new ArrayList<>();
-        users.add(new User(1, "Alice Johnson", new Date(1995 - 1900, 4, 12), "alice@email.com"));
-        users.add(new User(2, "Bob Smith", new Date(1988 - 1900, 10, 25), "bob@email.com"));
+            if (menuOption == null) {
+                System.out.println("❌ Opção inválida! Tente novamente.");
+                continue;
+            }
 
-        for (User user : users) {
-            bookStore.addUser(user);
-        }
+            switch (menuOption) {
+                case LIST_ALL_BOOKS:
+                    store.showBooks();
+                    showSubmenu(scanner);
+                    break;
 
-        while(true) {
-            System.out.print("Deseja ver os livros disponíveis? (sim/nao): ");
-            String answer = scanner.nextLine().toLowerCase();
+                case LIST_AVAILABLE_BOOKS:
+                    store.booksAvailable().forEach(System.out::println);
+                    showSubmenu(scanner);
+                    break;
 
-            if (answer.equals("sim")) {
-                List<Book> booksAvailable = bookStore.booksAvailable();
+                case LIST_LOANED_BOOKS:
+                    store.listLoanBooks().forEach(System.out::println);
+                    showSubmenu(scanner);
+                    break;
 
-                if (booksAvailable.isEmpty()) {
-                    System.out.println("Não há livros disponíveis.");
-                } else {
-                    System.out.println("Livros disponíveis:");
-                    for (Book book : booksAvailable) {
-                        System.out.println(book.getId() + " - " + book.getTitle());
-                    }
-
-                    System.out.print("\nDigite o ID do livro que deseja emprestar: ");
-                    int idBook = scanner.nextInt();
-                    scanner.nextLine();
-                    Book bookChoice = bookStore.searchBookById(idBook);
-
-                    if (bookChoice != null && bookChoice.isAvailable()) {
-                        System.out.print("Informe o seu email: ");
-
-                        String email = scanner.nextLine().trim();
-                        User emailChoice = bookStore.searchUserByEmail(email);
-
-                        if (emailChoice != null) {
-                            System.out.println("O livro " + bookChoice.getTitle() + " foi emprestado para " + emailChoice.getName() + "\n\n");
+                case LOAN_BOOK:
+                    System.out.print("📧 Digite seu email: ");
+                    String email = scanner.nextLine();
+                    User user = store.searchUserByEmail(email);
+                    if (user != null) {
+                        System.out.print("📚 Digite o ID do livro: ");
+                        int bookId = scanner.nextInt();
+                        scanner.nextLine();
+                        Book book = store.searchBookById(bookId);
+                        if (book != null && book.isAvailable()) {
+                            store.loanBook(book, user, new Date(), new Date(System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000))); // Devolução em 7 dias
+                            System.out.println("✅ Livro emprestado com sucesso!");
                         } else {
-                            System.out.println("Usuário não encontrado.");
+                            System.out.println("⚠️ Livro não disponível.");
                         }
                     } else {
-                        System.out.println("Livro não encontrado ou não disponível para empréstimo.\n\n");
+                        System.out.println("⚠️ Usuário não encontrado.");
                     }
-                }
-            } else if (answer.equals("nao")) {
-                System.out.println("Obrigado por utilizar o sistema da biblioteca.\n\n");
-                break;
-            } else {
-                System.out.println("Resposta inválida. Por favor, responda com 'sim' ou 'não'.\n\n");
+                    break;
+
+                case RETURN_BOOK:
+                    System.out.print("🔄 Digite o ID do livro para devolução: ");
+                    int bookReturnId = scanner.nextInt();
+                    scanner.nextLine();
+                    Book bookToReturn = store.searchBookById(bookReturnId);
+                    if (bookToReturn != null) {
+                        store.returnBook(bookToReturn, new Date());
+                        System.out.println("✅ Livro devolvido com sucesso!");
+                    } else {
+                        System.out.println("⚠️ Livro não encontrado.");
+                    }
+                    break;
+
+                case REGISTER_USER:
+                    System.out.print("📝 Nome: ");
+                    String name = scanner.nextLine();
+                    System.out.print("📧 Email: ");
+                    String newUserEmail = scanner.nextLine();
+                    User newUser = new User(store.listAllUsers().size() + 1, name, new Date(), newUserEmail);
+                    store.addUser(newUser);
+                    System.out.println("✅ Usuário cadastrado com sucesso!");
+                    break;
+
+                case LIST_AUTHORS:
+                    store.listAllAuthors().forEach(System.out::println);
+                    showSubmenu(scanner);
+                    break;
+
+                case SHOW_LOAN_HISTORY:
+                    System.out.print("📧 Digite seu email para ver o histórico de empréstimos: ");
+                    String emailForHistory = scanner.nextLine();
+                    User userForHistory = store.searchUserByEmail(emailForHistory);
+                    if (userForHistory != null) {
+                        store.showLoanHistory(userForHistory);
+                    } else {
+                        System.out.println("⚠️ Usuário não encontrado.");
+                    }
+                    break;
+
+
+                case EXIT:
+                    System.out.println("👋 Saindo do sistema...");
+                    scanner.close();
+                    return;
             }
         }
+    }
 
+    private static void showMenu() {
+        System.out.println("\n===== 📖 MENU PRINCIPAL =====");
+        for (MenuOption option : MenuOption.values()) {
+            System.out.println(option.ordinal() + 1 + ". " + option.getDescription());
+        }
+        System.out.print("Escolha uma opção: ");
+    }
+
+    private static void showSubmenu(Scanner scanner) {
+        while (true) {
+            showSubmenuOptions();
+            int submenuOption = scanner.nextInt();
+            scanner.nextLine();
+
+            if (submenuOption == 1) {
+                break; // Retorna para o menu principal
+            } else if (submenuOption == 2) {
+                System.out.println("👋 Saindo do sistema...");
+                scanner.close();
+                System.exit(0); // Sai do sistema
+            } else {
+                System.out.println("❌ Opção inválida! Tente novamente.");
+            }
+        }
+    }
+
+    private static void showSubmenuOptions() {
+        System.out.println("\n===== 📖 SUBMENU =====");
+        System.out.println("1. Retornar ao Menu");
+        System.out.println("2. Sair");
+        System.out.print("Escolha uma opção: ");
+    }
+
+    public enum MenuOption {
+        LIST_ALL_BOOKS(1, "Listar todos os livros"),
+        LIST_AVAILABLE_BOOKS(2, "Listar livros disponíveis"),
+        LIST_LOANED_BOOKS(3, "Listar livros emprestados"),
+        LOAN_BOOK(4, "Emprestar um livro"),
+        RETURN_BOOK(5, "Devolver um livro"),
+        REGISTER_USER(6, "Cadastrar usuário"),
+        LIST_AUTHORS(7, "Listar autores"),
+        SHOW_LOAN_HISTORY(8, "Ver histórico de empréstimos"),
+        EXIT(9, "Sair");
+
+        private final int value;
+        private final String description;
+
+        MenuOption(int value, String description) {
+            this.value = value;
+            this.description = description;
+        }
+
+        public static MenuOption fromInt(int option) {
+            for (MenuOption op : MenuOption.values()) {
+                if (op.value == option) {
+                    return op;
+                }
+            }
+            return null;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 }

@@ -1,24 +1,14 @@
-import java.util.Date;
-
 public class Book {
     private int id;
     private String title;
     private Author author;
-    private Boolean status;
-    private Date created_at;
-    private Date updated_at;
+    private boolean available;
 
-    public Book(int id, String title, Author author, Boolean status) {
+    public Book(int id, String title, Author author, boolean available) {
         this.id = id;
         this.title = title;
         this.author = author;
-        this.status = true;
-        this.created_at = new Date();
-        this.updated_at = new Date();
-    }
-
-    public boolean isAvailable() {
-        return this.status;
+        this.available = available;
     }
 
     public int getId() {
@@ -33,32 +23,16 @@ public class Book {
         return author;
     }
 
-    public Date getCreated_at() {
-        return created_at;
+    public boolean isAvailable() {
+        return available;
     }
 
-    public Date getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-        this.updated_at = new Date();
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
     @Override
     public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", author=" + author.getName() +
-                ", status=" + (status ? "Disponível" : "Emprestado") +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
-                '}';
+        return "Livro: " + title + " | Autor: " + author.getName() + " | Disponível: " + available;
     }
 }
